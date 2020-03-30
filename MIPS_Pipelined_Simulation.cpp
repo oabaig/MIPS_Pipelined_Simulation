@@ -2,20 +2,54 @@
 //
 
 #include "pch.h"
-#include <iostream>
+#include "MIPS_Resources.h"
+#include <fstream>
+#include <string>
+#include <sstream>
+using namespace std;
+
+void fileInput(ifstream &fpi, REGISTERS &R);
 
 int main()
 {
-    std::cout << "Hello World!\n"; 
+	string filename;
+	ifstream fpi;
+	REGISTERS R;
+
+	cout << "Input the file name: ";
+	cin >> filename;
+	cout << endl;
+	fpi.open(filename);
+	fileInput(fpi, R);
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
+void fileInput(ifstream &fpi, REGISTERS &R) {
+	string line;
+	string reg, memLoc, contents, code;
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+	getline(fpi, line);
+	while (!fpi.eof()) {
+		if (line == "REGISTERS") {
+			while (line != "MEMORY") {
+				getline(fpi, line);
+				stringstream ss(line);
+				ss >> reg >> contents;
+				cout << reg << " " << contents << " || " << line << endl;
+			}
+		}
+	}
+	/*
+	getline(fpi, inputText);
+	while (!fpi.eof()) {
+
+	//	if (inputText == "REGISTERS") {
+			getline(fpi, inputText);
+		//	while (inputText != "MEMORY") {
+				//getline(fpi, inputText);
+				temp << inputText;
+				temp >> temp2;
+				cout << temp2 << endl;
+		//	}
+	//	}
+	}*/
+}
