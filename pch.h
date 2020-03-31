@@ -14,11 +14,9 @@
 using namespace std;
 
 // pipeline register data structure
-struct IFID
-{
-	int Write;
-	int pc;
+struct IFID {
 	string instruction;
+	int pc;
 };
 
 struct IDEX {
@@ -93,7 +91,7 @@ void Init_Registers();
 void Init_Memory(int size);
 
 void IF(string inst);
-void ID();
+int ID(); // return stall info
 void EX();
 void MEM();
 void WB();
