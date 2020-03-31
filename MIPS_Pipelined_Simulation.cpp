@@ -128,14 +128,18 @@ bool read_file(string filename) {
 }
 
 int main() {
-	Init_Registers();	// initialize register file to 0
-	Init_Memory(5);	// initialize memory file 5*4 bytes
+	string infilename, outfilename;
 
-	string infilename = "input.txt";
+	cout << "Enter input filename: ";
+	cin >> infilename;
+	cout << "Enter output filename: ";
+	cin >> outfilename;
+
+	// initialization
+	Init_Registers();	// initialize register file to 0
+	Init_Memory(5);		// initialize memory file 5*4 bytes
 
 	// read file
 	read_file(infilename);
-
-	return 0;
 }
 */
