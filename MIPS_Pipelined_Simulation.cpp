@@ -63,7 +63,7 @@ void fileInput(ifstream &fpi, REGISTERS &R) {
 using namespace std;
 
 // global variables
-vector<string> instruction_set;
+vector<string> instruction_set; // use program counter to step to next instruction
 vector<int> registers;
 vector<int> memory;
 int inst_num;
@@ -113,11 +113,13 @@ bool read_file(string filename) {
 
 	cout << "Registers\n";
 	for (int i = 0; i < registers.size(); i++) {
-		cout << "R" << i << " " << registers.at(i) << endl;
+		if(registers.at(i))
+			cout << "R" << i << " " << registers.at(i) << endl;
 	}
 	cout << "Memory\n";
 	for (int i = 0; i < memory.size(); i++) {
-		cout << i*4 << " " << memory.at(i) << endl;
+		if(memory.at(i))
+			cout << i*4 << " " << memory.at(i) << endl;
 	}
 	cout << "Instruction Set\n";
 	for (int i = 0; i < instruction_set.size(); i++) {
@@ -136,10 +138,36 @@ int main() {
 	cin >> outfilename;
 
 	// initialization
-	Init_Registers();	// initialize register file to 0
+	Init_Registers();	// initialize all register value to 0
 	Init_Memory(5);		// initialize memory file 5*4 bytes
 
 	// read file
 	read_file(infilename);
+	
+	// initialize program counter
+	ifid.pc = 0;
+	
+	while (idex.pc < (instruction_set.size() * 4)) {
+		IF(instruction_set.at(ifid.pc / 4));
+		ID();
+		EX();
+		MEM();
+		WB();
+	}
+
+	cout << "=============== FINAL ================\n";
+	cout << "Registers\n";
+	for (int i = 0; i < registers.size(); i++) {
+		if (registers.at(i))
+			cout << "R" << i << " " << registers.at(i) << endl;
+	}
+	cout << "Memory\n";
+	for (int i = 0; i < memory.size(); i++) {
+		if (memory.at(i))
+			cout << i * 4 << " " << memory.at(i) << endl;
+	}
+
+
+	return 0;
 }
 */
