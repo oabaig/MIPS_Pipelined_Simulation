@@ -53,6 +53,7 @@ struct EXMEM {
 };
 
 struct MEMWB {
+	int pc;
 	int ReadData;
 	int ALUresult;
 	int write_reg;
