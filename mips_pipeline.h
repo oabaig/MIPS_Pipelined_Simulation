@@ -34,11 +34,13 @@ struct IDEX {
 		int MemToReg;
 	} control;
 };
+
 struct EXMEM {
 	int pc;
 	int ALUresult;
 	int WriteData;
 	int zero; // 1 for zero, 0 for not zero
+	int PCSrc;
 	int ADDresult;
 	int write_reg;
 	struct {
@@ -51,7 +53,6 @@ struct EXMEM {
 };
 
 struct MEMWB {
-	int pc;
 	int ReadData;
 	int ALUresult;
 	int write_reg;
@@ -71,7 +72,6 @@ extern IFID ifid;
 extern IDEX idex;
 extern EXMEM exmem;
 extern MEMWB memwb;
-
 
 // function definition
 void Init_Registers();
