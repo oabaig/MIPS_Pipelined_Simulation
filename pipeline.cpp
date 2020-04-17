@@ -77,6 +77,17 @@ int ID() {
 			idex.control.ALUOp0	= 0;
 			idex.control.ALUOp1	= 0;
 		}
+		else if (opcode == "001000") { // addi
+			idex.control.RegDst	= 0;
+			idex.control.ALUSrc	= 1;
+			idex.control.MemToReg	= 0;
+			idex.control.RegWrite	= 1;
+			idex.control.MemRead	= 0;
+			idex.control.MemWrite	= 0;
+			idex.control.Branch	= 0;
+			idex.control.ALUOp0	= 0;
+			idex.control.ALUOp1	= 0;
+		}
 		else if (opcode == "000100") { // beq
 			isBEQ = true;
 			idex.control.RegDst	= 0;	// don't care
@@ -199,11 +210,12 @@ void EX() {
 		else
 			exmem.PCSrc = 1;
 	}
+	exmem.PCSrc &= exmem.control.Branch; // decide if branch is taken finally
 }
 
 void MEM() {
 	// branch
-	if (idex.control.Branch && exmem.PCSrc)
+	if (exmem.PCSrc)
 		ifid.pc = exmem.ADDresult;
 	else
 		ifid.pc = exmem.pc;
