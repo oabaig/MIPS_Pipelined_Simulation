@@ -1,4 +1,3 @@
-// pch.cpp: source file corresponding to pre-compiled header; necessary for compilation to succeed
 #include "mips_pipeline.h"
 #include <string>
 using namespace std;
@@ -33,6 +32,7 @@ int ID() {
 		// maybe saving some info about stall
 		// might need a global variable to identify the stall start and stop
 		// ???????????????????
+		// if we are doing unpipeline we don't need this thing here
 		return 0;
 	}
 	
@@ -86,6 +86,17 @@ int ID() {
 			idex.control.ALUOp0	= 0;
 			idex.control.ALUOp1	= 1;
 		}
+		else if (opcode == "000101") { // bne
+			idex.control.RegDst	= 0;	// don't care
+			idex.control.ALUSrc	= 0;
+			idex.control.MemToReg	= 0;	// don't care
+			idex.control.RegWrite	= 0;
+			idex.control.MemRead	= 0;
+			idex.control.MemWrite	= 0;
+			idex.control.Branch	= 1;
+			idex.control.ALUOp0	= 0;
+			idex.control.ALUOp1	= 1;
+		}
 	}
 	
 	// register file
@@ -124,7 +135,7 @@ void EX() {
 	if (idex.control.ALUOp0 == 0 && idex.control.ALUOp1 == 0) { // lw & sw
 		ALUcontrol = "0010"; // add
 	}
-	else if (idex.control.ALUOp0 == 0 && idex.control.ALUOp1 == 1) { // beq
+	else if (idex.control.ALUOp0 == 0 && idex.control.ALUOp1 == 1) {// branch
 		ALUcontrol = "0110"; // sub
 	}
 	else if (idex.control.ALUOp0 == 1 && idex.control.ALUOp1 == 0) { // R-type
@@ -163,6 +174,8 @@ void EX() {
 		exmem.ALUresult = ALU_A - ALU_B;
 		if (exmem.ALUresult == 0)
 			exmem.zero = 1;
+		else
+			exmem.zero = 0;
 	}
 	else if (ALUcontrol == "0000") // and
 		exmem.ALUresult = ALU_A & ALU_B;
@@ -171,7 +184,7 @@ void EX() {
 }
 
 void MEM() {
-	// branch if equal
+	// branch
 	if (idex.control.Branch && exmem.zero)
 		memwb.pc = exmem.ADDresult;
 	else
