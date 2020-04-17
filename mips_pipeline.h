@@ -1,13 +1,5 @@
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
-
-#ifndef PCH_H
-#define PCH_H
+#ifndef MIPSPIPELINE_H
+#define MIPSPIPELINE_H
 
 #include <iostream>
 #include <vector>
@@ -20,13 +12,16 @@ struct IFID {
 };
 
 struct IDEX {
+	int pc;
 	int read_data1;
 	int read_data2;
-	int offset;
 	int rs;
 	int rt;
 	int rd;
 	int shamt;
+	int funct;
+	int offset;		// for I-type
+	int index;		// for J-type
 	struct {
 		int RegDst;
 		int ALUOp0;
@@ -39,16 +34,14 @@ struct IDEX {
 		int MemToReg;
 	} control;
 };
-
 struct EXMEM {
-	int ALUout;
+	int pc;
+	int ALUresult;
 	int WriteData;
-	int address;
+	int zero; // 1 for zero, 0 for not zero
+	int ADDresult;
+	int write_reg;
 	struct {
-		int RegDst;
-		int ALUOp0;
-		int ALUOp1;
-		int ALUSrc;
 		int Branch;
 		int MemRead;
 		int MemWrite;
@@ -58,17 +51,11 @@ struct EXMEM {
 };
 
 struct MEMWB {
+	int pc;
 	int ReadData;
-	int ALUout;
-	int address;
+	int ALUresult;
+	int write_reg;
 	struct {
-		int RegDst;
-		int ALUOp0;
-		int ALUOp1;
-		int ALUSrc;
-		int Branch;
-		int MemRead;
-		int MemWrite;
 		int RegWrite;
 		int MemToReg;
 	} control;
@@ -99,4 +86,4 @@ void WB();
 // helper function
 int btod(string n); 
 
-#endif //PCH_H
+#endif //MIPSPIPELINE_H
