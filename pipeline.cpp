@@ -2,6 +2,8 @@
 #include <string>
 using namespace std;
 
+bool isBEQ, isBNE;
+
 void Init_Registers() {
 	for (int i = 0; i < 10; i++) {
 		registers.push_back(0);
@@ -76,6 +78,7 @@ int ID() {
 			idex.control.ALUOp1	= 0;
 		}
 		else if (opcode == "000100") { // beq
+			isBEQ = true;
 			idex.control.RegDst	= 0;	// don't care
 			idex.control.ALUSrc	= 0;
 			idex.control.MemToReg	= 0;	// don't care
@@ -87,6 +90,7 @@ int ID() {
 			idex.control.ALUOp1	= 1;
 		}
 		else if (opcode == "000101") { // bne
+			isBNE = true;
 			idex.control.RegDst	= 0;	// don't care
 			idex.control.ALUSrc	= 0;
 			idex.control.MemToReg	= 0;	// don't care
@@ -181,14 +185,28 @@ void EX() {
 		exmem.ALUresult = ALU_A & ALU_B;
 	else if (ALUcontrol == "0001") // or
 		exmem.ALUresult = ALU_A | ALU_B;
+	
+	// beq bne pc control
+	if (isBEQ) {
+		if (exmem.zero)
+			exmem.PCSrc = 1;
+		else
+			exmem.PCSrc = 0;
+	}
+	else if (isBNE){
+		if (exmem.zero)
+			exmem.PCSrc = 0;
+		else
+			exmem.PCSrc = 1;
+	}
 }
 
 void MEM() {
 	// branch
-	if (idex.control.Branch && exmem.zero)
-		memwb.pc = exmem.ADDresult;
+	if (idex.control.Branch && exmem.PCSrc)
+		ifid.pc = exmem.ADDresult;
 	else
-		memwb.pc = exmem.pc;
+		ifid.pc = exmem.pc;
 
 	// memory file
 	if (exmem.control.MemRead) // lw
