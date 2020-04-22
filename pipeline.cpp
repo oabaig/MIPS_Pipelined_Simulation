@@ -29,7 +29,7 @@ int ID() {
 	int RS = btod(inst.substr(6, 5));
 	int RT = btod(inst.substr(11, 5));
 
-	if (RS == idex.rt || RS == idex.rd || RT == idex.rt || RT == idex.rd) {
+	if (RS == idex.rd || RT == idex.rd) {
 		// taking care of data hazard
 		// maybe saving some info about stall
 		// might need a global variable to identify the stall start and stop
