@@ -1,11 +1,12 @@
-#ifndef MIPSPIPELINE_H
-#define MIPSPIPELINE_H
+#ifndef MIPS_H
+#define MIPS_H
 
 #include <iostream>
 #include <vector>
+#include <string>
 using namespace std;
 
-// pipeline register data structure
+// register data structure
 struct IFID {
 	string instruction;
 	int pc;
@@ -21,7 +22,6 @@ struct IDEX {
 	int shamt;
 	int funct;
 	int offset;		// for I-type
-	int index;		// for J-type
 	struct {
 		int RegDst;
 		int ALUOp0;
@@ -39,8 +39,8 @@ struct EXMEM {
 	int pc;
 	int ALUresult;
 	int WriteData;
-	int zero; // 1 for zero, 0 for not zero
-	int PCSrc;
+	int zero;	// 1 for zero, 0 for not zero
+	int PCSrc;	// branch control
 	int ADDresult;
 	int write_reg;
 	struct {
@@ -53,7 +53,6 @@ struct EXMEM {
 };
 
 struct MEMWB {
-	int pc;
 	int ReadData;
 	int ALUresult;
 	int write_reg;
@@ -68,23 +67,23 @@ struct MEMWB {
 extern vector<string> instruction_set;
 extern vector<int> registers;
 extern vector<int> memory;
-extern int inst_num;
 extern IFID ifid;
 extern IDEX idex;
 extern EXMEM exmem;
 extern MEMWB memwb;
+extern bool isIF;
 
 // function definition
 void Init_Registers();
 void Init_Memory(int size);
 
 void IF(string inst);
-int ID(); // return stall info
+void ID();
 void EX();
 void MEM();
 void WB();
 
 // helper function
-int btod(string n); 
+int btod(string n);
 
-#endif //MIPSPIPELINE_H
+#endif
