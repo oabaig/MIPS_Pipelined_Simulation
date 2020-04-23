@@ -1,5 +1,5 @@
-#include "mips_pipeline.h"
-#include <string>
+#include "mips.h"
+#include <iostream>
 using namespace std;
 
 bool isBEQ, isBNE;
@@ -17,103 +17,93 @@ void Init_Memory(int size) {
 }
 
 void IF(string inst) {
+	cout << "IF()\n";
 	ifid.instruction = inst;
 	ifid.pc += 4;
 }
 
-int ID() {
-	// return 0 if need to stall
-	// return 1 if successfully decode
-
+void ID() {
 	string inst = ifid.instruction;
 	int RS = btod(inst.substr(6, 5));
 	int RT = btod(inst.substr(11, 5));
 
-	if (RS == idex.rd || RT == idex.rd) {
-		// taking care of data hazard
-		// maybe saving some info about stall
-		// might need a global variable to identify the stall start and stop
-		// ???????????????????
-		// if we are doing unpipeline we don't need this thing here
-		return 0;
-	}
-	
 	idex.pc = ifid.pc;
-	
-	string opcode = inst.substr(0, 6);
-	if (opcode == "000000") { // R-type
-		// initialize control for R-type
-		idex.control.RegDst	= 1;
-		idex.control.ALUSrc	= 0;
-		idex.control.MemToReg	= 0;
-		idex.control.RegWrite	= 1;
-		idex.control.MemRead	= 0;
-		idex.control.MemWrite	= 0;
-		idex.control.Branch	= 0;
-		idex.control.ALUOp0	= 1;
-		idex.control.ALUOp1	= 0;
+	isBNE = false;
+	isBEQ = false;
 
+	string opcode = inst.substr(0, 6);
+	if (opcode == "000000") {	// R-type
+		// initialize control for R-type
+		idex.control.RegDst = 1;
+		idex.control.ALUSrc = 0;
+		idex.control.MemToReg = 0;
+		idex.control.RegWrite = 1;
+		idex.control.MemRead = 0;
+		idex.control.MemWrite = 0;
+		idex.control.Branch = 0;
+		idex.control.ALUOp0 = 1;
+		idex.control.ALUOp1 = 0;
 	}
-	else { // I-type or J-type
+	else { // I-type
 		if (opcode == "100011") { // lw
-			idex.control.RegDst	= 0;
-			idex.control.ALUSrc	= 1;
-			idex.control.MemToReg	= 1;
-			idex.control.RegWrite	= 1;
-			idex.control.MemRead	= 1;
-			idex.control.MemWrite	= 0;
-			idex.control.Branch	= 0;
-			idex.control.ALUOp0	= 0;
-			idex.control.ALUOp1	= 0;
+			idex.control.RegDst = 0;
+			idex.control.ALUSrc = 1;
+			idex.control.MemToReg = 1;
+			idex.control.RegWrite = 1;
+			idex.control.MemRead = 1;
+			idex.control.MemWrite = 0;
+			idex.control.Branch = 0;
+			idex.control.ALUOp0 = 0;
+			idex.control.ALUOp1 = 0;
 		}
 		else if (opcode == "101011") { // sw
-			idex.control.RegDst	= 0;	// don't care
-			idex.control.ALUSrc	= 1;
-			idex.control.MemToReg	= 0;	// don't care
-			idex.control.RegWrite	= 0;
-			idex.control.MemRead	= 0;
-			idex.control.MemWrite	= 1;
-			idex.control.Branch	= 0;
-			idex.control.ALUOp0	= 0;
-			idex.control.ALUOp1	= 0;
+			idex.control.RegDst = 0;	// don't care
+			idex.control.ALUSrc = 1;
+			idex.control.MemToReg = 0;	// don't care
+			idex.control.RegWrite = 0;
+			idex.control.MemRead = 0;
+			idex.control.MemWrite = 1;
+			idex.control.Branch = 0;
+			idex.control.ALUOp0 = 0;
+			idex.control.ALUOp1 = 0;
 		}
 		else if (opcode == "001000") { // addi
-			idex.control.RegDst	= 0;
-			idex.control.ALUSrc	= 1;
-			idex.control.MemToReg	= 0;
-			idex.control.RegWrite	= 1;
-			idex.control.MemRead	= 0;
-			idex.control.MemWrite	= 0;
-			idex.control.Branch	= 0;
-			idex.control.ALUOp0	= 0;
-			idex.control.ALUOp1	= 0;
+			idex.control.RegDst = 0;
+			idex.control.ALUSrc = 1;
+			idex.control.MemToReg = 0;
+			idex.control.RegWrite = 1;
+			idex.control.MemRead = 0;
+			idex.control.MemWrite = 0;
+			idex.control.Branch = 0;
+			idex.control.ALUOp0 = 0;
+			idex.control.ALUOp1 = 0;
 		}
 		else if (opcode == "000100") { // beq
 			isBEQ = true;
-			idex.control.RegDst	= 0;	// don't care
-			idex.control.ALUSrc	= 0;
-			idex.control.MemToReg	= 0;	// don't care
-			idex.control.RegWrite	= 0;
-			idex.control.MemRead	= 0;
-			idex.control.MemWrite	= 0;
-			idex.control.Branch	= 1;
-			idex.control.ALUOp0	= 0;
-			idex.control.ALUOp1	= 1;
+			idex.control.RegDst = 0;	// don't care
+			idex.control.ALUSrc = 0;
+			idex.control.MemToReg = 0;	// don't care
+			idex.control.RegWrite = 0;
+			idex.control.MemRead = 0;
+			idex.control.MemWrite = 0;
+			idex.control.Branch = 1;
+			idex.control.ALUOp0 = 0;
+			idex.control.ALUOp1 = 1;
 		}
 		else if (opcode == "000101") { // bne
 			isBNE = true;
-			idex.control.RegDst	= 0;	// don't care
-			idex.control.ALUSrc	= 0;
-			idex.control.MemToReg	= 0;	// don't care
-			idex.control.RegWrite	= 0;
-			idex.control.MemRead	= 0;
-			idex.control.MemWrite	= 0;
-			idex.control.Branch	= 1;
-			idex.control.ALUOp0	= 0;
-			idex.control.ALUOp1	= 1;
+			idex.control.RegDst = 0;	// don't care
+			idex.control.ALUSrc = 0;
+			idex.control.MemToReg = 0;	// don't care
+			idex.control.RegWrite = 0;
+			idex.control.MemRead = 0;
+			idex.control.MemWrite = 0;
+			idex.control.Branch = 1;
+			idex.control.ALUOp0 = 0;
+			idex.control.ALUOp1 = 1;
 		}
 	}
-	
+
 	// register file
 	idex.rs = btod(inst.substr(6, 5));
 	idex.rt = btod(inst.substr(11, 5));
@@ -128,12 +118,6 @@ int ID() {
 	idex.shamt = btod(inst.substr(21, 5));
 	idex.funct = btod(inst.substr(26, 6));
 	idex.offset = btod(inst.substr(16, 16));
-	idex.index = btod(inst.substr(6, 26));
-
-	// ????????????
-	// might need something here to identify structural hazard
-	
-	return 1;
 }
 
 void EX() {
@@ -150,7 +134,7 @@ void EX() {
 	if (idex.control.ALUOp0 == 0 && idex.control.ALUOp1 == 0) { // lw & sw
 		ALUcontrol = "0010"; // add
 	}
-	else if (idex.control.ALUOp0 == 0 && idex.control.ALUOp1 == 1) {// branch
+	else if (idex.control.ALUOp0 == 0 && idex.control.ALUOp1 == 1) {// beq bne
 		ALUcontrol = "0110"; // sub
 	}
 	else if (idex.control.ALUOp0 == 1 && idex.control.ALUOp1 == 0) { // R-type
@@ -174,9 +158,6 @@ void EX() {
 	exmem.pc = idex.pc;
 	exmem.WriteData = idex.read_data2;
 	exmem.write_reg = idex.rd;
-	
-	// more stuff here
-	//????????????????
 
 	// add for pc
 	exmem.ADDresult = idex.pc + idex.offset * 4;
@@ -196,8 +177,9 @@ void EX() {
 		exmem.ALUresult = ALU_A & ALU_B;
 	else if (ALUcontrol == "0001") // or
 		exmem.ALUresult = ALU_A | ALU_B;
-	
+
 	// beq bne pc control
+	exmem.PCSrc = 0;
 	if (isBEQ) {
 		if (exmem.zero)
 			exmem.PCSrc = 1;
@@ -210,22 +192,19 @@ void EX() {
 		else
 			exmem.PCSrc = 1;
 	}
-	exmem.PCSrc &= exmem.control.Branch; // decide if branch is taken finally
+	exmem.PCSrc &= exmem.control.Branch;
 }
 
 void MEM() {
-	// branch
+	// beq bne pc control
 	if (exmem.PCSrc)
 		ifid.pc = exmem.ADDresult;
-	else
-		ifid.pc = exmem.pc;
 
 	// memory file
 	if (exmem.control.MemRead) // lw
 		memwb.ReadData = memory.at(exmem.ALUresult / 4);
-	if (exmem.control.MemWrite) { // sw
+	if (exmem.control.MemWrite) // sw
 		memory.at(exmem.ALUresult / 4) = exmem.WriteData;
-	}
 
 	// carry over
 	memwb.control.MemToReg = exmem.control.MemToReg;
@@ -233,6 +212,7 @@ void MEM() {
 	memwb.ALUresult = exmem.ALUresult;
 	memwb.write_reg = exmem.write_reg;
 }
+
 
 void WB() {
 	if (memwb.control.RegWrite) {
@@ -243,6 +223,8 @@ void WB() {
 	}
 }
 
+
+// helper function
 // convert binary to decimal
 int btod(string n) {
 	int val = 0;
