@@ -36,13 +36,12 @@ struct IDEX {
 };
 
 struct EXMEM {
-	int pc;
 	int ALUresult;
 	int WriteData;
 	int zero;	// 1 for zero, 0 for not zero
 	int PCSrc;	// branch control
 	int ADDresult;
-	int write_reg;
+	int rd;
 	struct {
 		int Branch;
 		int MemRead;
@@ -55,7 +54,7 @@ struct EXMEM {
 struct MEMWB {
 	int ReadData;
 	int ALUresult;
-	int write_reg;
+	int rd;
 	struct {
 		int RegWrite;
 		int MemToReg;
@@ -79,8 +78,8 @@ void Init_Memory(int size);
 
 void IF(string inst);
 void ID();
-void EX();
-void MEM();
+bool EX();
+bool MEM();
 void WB();
 
 // helper function
