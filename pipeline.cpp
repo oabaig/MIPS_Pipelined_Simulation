@@ -17,17 +17,14 @@ void Init_Memory(int size) {
 }
 
 void IF(string inst) {
-	cout << "IF()\n";
 	ifid.instruction = inst;
 	ifid.pc += 4;
 }
 
 void ID() {
 	string inst = ifid.instruction;
-	int RS = btod(inst.substr(6, 5));
-	int RT = btod(inst.substr(11, 5));
-
 	idex.pc = ifid.pc;
+	
 	isBNE = false;
 	isBEQ = false;
 
@@ -120,7 +117,7 @@ void ID() {
 	idex.offset = btod(inst.substr(16, 16));
 }
 
-void EX() {
+bool EX() {
 	int ALU_A, ALU_B; // 2 value going into ALU
 
 	ALU_A = idex.read_data1;
@@ -155,9 +152,8 @@ void EX() {
 	exmem.control.RegWrite = idex.control.RegWrite;
 	exmem.control.MemToReg = idex.control.MemToReg;
 
-	exmem.pc = idex.pc;
 	exmem.WriteData = idex.read_data2;
-	exmem.write_reg = idex.rd;
+	exmem.rd = idex.rd;
 
 	// add for pc
 	exmem.ADDresult = idex.pc + idex.offset * 4;
@@ -193,13 +189,25 @@ void EX() {
 			exmem.PCSrc = 1;
 	}
 	exmem.PCSrc &= exmem.control.Branch;
-}
 
-void MEM() {
-	// beq bne pc control
+	// branch
 	if (exmem.PCSrc)
 		ifid.pc = exmem.ADDresult;
 
+	// return true for if continue to MEM()
+	// else false
+	if (exmem.control.MemRead || exmem.control.MemWrite || exmem.control.MemToReg)
+		return true;
+	else {
+		memwb.control.MemToReg = exmem.control.MemToReg;
+		memwb.control.RegWrite = exmem.control.RegWrite;
+		memwb.ALUresult = exmem.ALUresult;
+		memwb.rd = exmem.rd;
+		return false;
+	}
+}
+
+bool MEM() {
 	// memory file
 	if (exmem.control.MemRead) // lw
 		memwb.ReadData = memory.at(exmem.ALUresult / 4);
@@ -210,16 +218,23 @@ void MEM() {
 	memwb.control.MemToReg = exmem.control.MemToReg;
 	memwb.control.RegWrite = exmem.control.RegWrite;
 	memwb.ALUresult = exmem.ALUresult;
-	memwb.write_reg = exmem.write_reg;
+	memwb.rd = exmem.rd;
+
+	// return true for if continue to WB()
+	// else false
+	if (exmem.control.RegWrite)
+		return true;
+	else
+		return false;
 }
 
 
 void WB() {
 	if (memwb.control.RegWrite) {
 		if (memwb.control.MemToReg)
-			registers.at(memwb.write_reg) = memwb.ReadData;
+			registers.at(memwb.rd) = memwb.ReadData;
 		else
-			registers.at(memwb.write_reg) = memwb.ALUresult;
+			registers.at(memwb.rd) = memwb.ALUresult;
 	}
 }
 
