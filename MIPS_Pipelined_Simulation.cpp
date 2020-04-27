@@ -75,13 +75,11 @@ bool read_file(string filename) {
 
 int main() {
 	string infilename, outfilename;
-	infilename = "input.txt";
-	outfilename = "output.txt";
 
-//	cout << "Enter input filename: ";
-//	cin >> infilename;
-//	cout << "Enter output filename: ";
-//	cin >> outfilename;
+	cout << "Enter input filename: ";
+	cin >> infilename;
+	cout << "Enter output filename: ";
+	cin >> outfilename;
 
 	// initialization
 	Init_Registers();	// initialize all register value to 0
