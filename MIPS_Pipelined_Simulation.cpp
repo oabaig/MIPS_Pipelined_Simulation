@@ -1,4 +1,3 @@
-// MIPS_Pipelined_Simulation.cpp : This file contains the 'main' function. Program execution begins and ends there.
 #include "mips.h"
 #include <iostream>
 #include <fstream>
