@@ -1,5 +1,6 @@
 #include "mips.h"
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 bool isBEQ, isBNE;
